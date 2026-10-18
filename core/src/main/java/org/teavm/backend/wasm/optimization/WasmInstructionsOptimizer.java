@@ -136,9 +136,7 @@ import org.teavm.backend.wasm.model.instruction.WasmUnreachable;
  * <p>{@code local.tee} is always kept, even if the removed {@code local.get} was the only read of the value,
  * since the value may be read elsewhere, including targets of branches and exception handlers.
  * {@link WasmDeadStoreOptimizer} decides this precisely, using liveness computed after this pass.</p>
- *
- * <p>Additionally, identity copies, i.e. {@code local.get X ... local.set X} with no writes to {@code X}
- * in between, are removed, see {@link #handleIdentityCopy(WasmSetLocal)}.</p>
+
  *
  * <p>Before the main pass, conditional jumps over blocks are turned into {@code if} instructions,
  * see {@link #reconstructConditionals(WasmInstructionList)}. This merges blocks, so that the main pass
@@ -421,6 +419,49 @@ public class WasmInstructionsOptimizer {
         return true;
     }
 
+    /*
+      Replaces condition in form
+
+      if (result i32)
+        1|0
+      else
+        0|1
+      end
+
+      with eqz eqz or eqz respectively
+     */
+    private void checkTrueFalseCondition(WasmConditional conditional) {
+        if (conditional.getType() == null || conditional.getType().getOutputTypes().size() != 1
+                || conditional.getType().getOutputTypes().get(0) != WasmType.INT32) {
+            return;
+        }
+        if (!isSingleInstruction(conditional.getThenBlock()) || !isSingleInstruction(conditional.getElseBlock())) {
+            return;
+        }
+        if (!(conditional.getThenBlock().getFirst() instanceof WasmInt32Constant thenCst)
+                || !(conditional.getElseBlock().getFirst() instanceof WasmInt32Constant elseCst)) {
+            return;
+        }
+        if (thenCst.getValue() == 1 && elseCst.getValue() == 0) {
+            insertEqzBefore(conditional);
+            insertEqzBefore(conditional);
+            conditional.delete();
+        } else if (thenCst.getValue() == 0 && elseCst.getValue() == 1) {
+            insertEqzBefore(conditional);
+            conditional.delete();
+        }
+    }
+
+    private boolean isSingleInstruction(WasmInstructionList list) {
+        return list.getFirst() != null && list.getLast() == list.getFirst();
+    }
+
+    private void insertEqzBefore(WasmInstruction insn) {
+        var eqz = new WasmIntUnary(WasmIntType.INT32, WasmIntUnaryOperation.EQZ);
+        eqz.setLocation(insn.getLocation());
+        insn.insertPrevious(eqz);
+    }
+
     /**
      * <p>When both parts of {@code if} end with assignment to the same local (or one of them is terminating),
      * the assignment is moved after {@code if}, which now produces the value:</p>
@@ -474,6 +515,7 @@ public class WasmInstructionsOptimizer {
             elseSet.delete();
         }
         conditional.insertNext(result);
+        checkTrueFalseCondition(conditional);
         return result;
     }
 
@@ -651,35 +693,6 @@ public class WasmInstructionsOptimizer {
         frameStart = savedFrameStart;
     }
 
-    /**
-     * <p>Handles {@code local.set} that writes to a local the value that was read from the same local, while
-     * the local was not written since then. Such copies appear after coalescing of locals.</p>
-     *
-     * <p>Identity copy is turned into a special spill, positioned where the value was read. If a later
-     * {@code local.get} is kept on stack, both {@code local.set} and the later {@code local.get} are removed,
-     * so the value read by the original {@code local.get} stays on stack. Otherwise, when the spill is
-     * discarded, both {@code local.get} and {@code local.set} are removed. In both cases, the spill that
-     * was the last one for the local before the copy becomes the last one again, since the copy does not
-     * change the value of the local.</p>
-     */
-    private boolean handleIdentityCopy(WasmSetLocal set) {
-        var value = top;
-        if (value == null || value.copyOf == null) {
-            return false;
-        }
-        var index = set.getLocal().getIndex();
-        if (value.copyOf.getLocal() != set.getLocal() || value.definitionCount != definitionCounts[index]) {
-            return false;
-        }
-        top = value.previous;
-        discardSpills(value.position);
-        var spill = new Spill(value.position, topSpill, set);
-        spill.identityGet = value.copyOf;
-        spill.shadowed = lastSpills[index];
-        topSpill = spill;
-        lastSpills[index] = spill;
-        return true;
-    }
 
     private void retire(Spill spill) {
         spill.alive = false;
@@ -1008,9 +1021,6 @@ public class WasmInstructionsOptimizer {
 
         @Override
         public void visit(WasmSetLocal instruction) {
-            if (handleIdentityCopy(instruction)) {
-                return;
-            }
             definitionCounts[instruction.getLocal().getIndex()]++;
             consume(1);
             var spill = new Spill(nextPosition++, topSpill, instruction);
