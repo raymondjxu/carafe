@@ -16,6 +16,8 @@
 
 package org.teavm.buildutil;
 
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -28,8 +30,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.DirectoryProperty;

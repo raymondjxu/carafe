@@ -179,7 +179,7 @@ class DependencyRelocationExtensionImpl implements DependencyRelocationExtension
         if (config == null) {
             return;
         }
-        for (var iterator = config.getDependencies().iterator(); iterator.hasNext(); ) {
+        for (var iterator = config.getDependencies().iterator(); iterator.hasNext();) {
             var dependency = iterator.next();
             var relocatedDep = depsByLibrary.get(dependency);
             if (relocatedDep != null) {

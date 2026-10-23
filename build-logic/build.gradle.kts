@@ -70,6 +70,11 @@ gradlePlugin {
     }
 }
 
+// Generated constants are not handwritten source.
+tasks.withType<Checkstyle>().configureEach {
+    exclude("org/teavm/buildutil/Config.java")
+}
+
 checkstyle {
     toolVersion = libs.versions.checkstyle.get()
     configDirectory = project.layout.projectDirectory.dir("../config/checkstyle")
