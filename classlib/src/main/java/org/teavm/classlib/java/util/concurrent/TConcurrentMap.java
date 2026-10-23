@@ -87,7 +87,11 @@ public interface TConcurrentMap<K, V> extends TMap<K, V> {
         V oldValue = get(key);
         if (oldValue == null) {
             V newValue = mappingFunction.apply(key);
-            return newValue != null ? putIfAbsent(key, newValue) : null;
+            if (newValue == null) {
+                return null;
+            }
+            V existingValue = putIfAbsent(key, newValue);
+            return existingValue != null ? existingValue : newValue;
         } else {
             return oldValue;
         }
