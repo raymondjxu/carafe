@@ -543,6 +543,7 @@ public class TObject {
                 return;
             }
             performed = true;
+            expired = true;
             if (timerId >= 0) {
                 if (PlatformDetector.isLowLevel() || PlatformDetector.isWebAssemblyGC()) {
                     EventQueue.kill(timerId);
@@ -551,10 +552,27 @@ public class TObject {
                 }
                 timerId = -1;
             }
+            AsyncCallback<Void> throwAfterReacquire = new AsyncCallback<Void>() {
+                @Override
+                public void complete(Void result) {
+                    callback.error(new TInterruptedException());
+                }
+
+                @Override
+                public void error(Throwable e) {
+                    callback.error(e);
+                }
+            };
             if (PlatformDetector.isLowLevel() || PlatformDetector.isWebAssemblyGC()) {
-                EventQueue.offer(() -> callback.error(new TInterruptedException()));
+                EventQueue.offer(() -> {
+                    TThread.setCurrentThread(currentThread);
+                    monitorEnterWait(obj, lockCount, throwAfterReacquire);
+                });
             } else {
-                Platform.postpone(() -> callback.error(new TInterruptedException()));
+                Platform.postpone(() -> {
+                    TThread.setCurrentThread(currentThread);
+                    monitorEnterWait(obj, lockCount, throwAfterReacquire);
+                });
             }
         }
     }
