@@ -15,7 +15,6 @@
  */
 package org.teavm.runtime;
 
-import java.util.Arrays;
 import org.teavm.interop.AsyncCallback;
 import org.teavm.interop.StaticInit;
 import org.teavm.interop.Unmanaged;
@@ -56,7 +55,7 @@ public final class Fiber {
         if (intValues == null) {
             intValues = new int[4];
         } else if (intTop + 1 == intValues.length) {
-            intValues = Arrays.copyOf(intValues, intValues.length * 3 / 2);
+            intValues = growInts(intValues, intValues.length * 3 / 2);
         }
         intValues[intTop++] = value;
     }
@@ -65,7 +64,7 @@ public final class Fiber {
         if (longValues == null) {
             longValues = new long[4];
         } else if (longTop + 1 == longValues.length) {
-            longValues = Arrays.copyOf(longValues, longValues.length * 3 / 2);
+            longValues = growLongs(longValues, longValues.length * 3 / 2);
         }
         longValues[longTop++] = value;
     }
@@ -74,7 +73,7 @@ public final class Fiber {
         if (floatValues == null) {
             floatValues = new float[4];
         } else if (floatTop + 1 == floatValues.length) {
-            floatValues = Arrays.copyOf(floatValues, floatValues.length * 3 / 2);
+            floatValues = growFloats(floatValues, floatValues.length * 3 / 2);
         }
         floatValues[floatTop++] = value;
     }
@@ -83,7 +82,7 @@ public final class Fiber {
         if (doubleValues == null) {
             doubleValues = new double[4];
         } else if (doubleTop + 1 == doubleValues.length) {
-            doubleValues = Arrays.copyOf(doubleValues, doubleValues.length * 3 / 2);
+            doubleValues = growDoubles(doubleValues, doubleValues.length * 3 / 2);
         }
         doubleValues[doubleTop++] = value;
     }
@@ -92,9 +91,40 @@ public final class Fiber {
         if (objectValues == null) {
             objectValues = new Object[4];
         } else if (objectTop + 1 == objectValues.length) {
-            objectValues = Arrays.copyOf(objectValues, objectValues.length * 3 / 2);
+            objectValues = growObjects(objectValues, objectValues.length * 3 / 2);
         }
         objectValues[objectTop++] = value;
+    }
+
+    // Stack growth must not call potentially suspending reflective array helpers.
+    private static int[] growInts(int[] old, int length) {
+        var result = new int[length];
+        System.arraycopy(old, 0, result, 0, old.length);
+        return result;
+    }
+
+    private static long[] growLongs(long[] old, int length) {
+        var result = new long[length];
+        System.arraycopy(old, 0, result, 0, old.length);
+        return result;
+    }
+
+    private static float[] growFloats(float[] old, int length) {
+        var result = new float[length];
+        System.arraycopy(old, 0, result, 0, old.length);
+        return result;
+    }
+
+    private static double[] growDoubles(double[] old, int length) {
+        var result = new double[length];
+        System.arraycopy(old, 0, result, 0, old.length);
+        return result;
+    }
+
+    private static Object[] growObjects(Object[] old, int length) {
+        var result = new Object[length];
+        System.arraycopy(old, 0, result, 0, old.length);
+        return result;
     }
 
     public static void reversePush(int value, Fiber fiber) {
