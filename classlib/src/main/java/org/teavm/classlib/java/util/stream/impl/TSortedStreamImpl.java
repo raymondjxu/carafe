@@ -43,7 +43,7 @@ public class TSortedStreamImpl<T> extends TSimpleStreamImpl<T> {
 
     @Override
     protected int estimateSize() {
-        return sourceStream.estimateSize();
+        return array.length - index;
     }
 
     @Override
