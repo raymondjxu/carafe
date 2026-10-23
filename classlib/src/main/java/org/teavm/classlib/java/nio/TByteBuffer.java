@@ -167,13 +167,10 @@ public abstract class TByteBuffer extends TBuffer implements TComparable<TByteBu
     }
 
     public TByteBuffer put(int index, TByteBuffer src, int offset, int length) {
-        if (src.remaining() == 0) {
-            return this;
-        }
         if (isReadOnly()) {
             throw new TReadOnlyBufferException();
         }
-        if (length < 0 || offset < 0 || offset + length > src.limit() || index < 0 || index + length > capacity()) {
+        if (length < 0 || offset < 0 || offset > src.limit() - length || index < 0 || index > limit() - length) {
             throw new IndexOutOfBoundsException();
         }
         putImpl(index, src, offset, length);
