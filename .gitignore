@@ -35,3 +35,6 @@ node_modules
 !.idea/codeStyles
 !.idea/copyright
 .intellijPlatform
+
+# Local audit reproducers; regression tests belong in tests/.
+/owlcraft-repros/
