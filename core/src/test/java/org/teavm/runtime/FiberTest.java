@@ -17,6 +17,7 @@ package org.teavm.runtime;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import java.lang.reflect.Field;
 import org.junit.After;
@@ -63,4 +64,19 @@ public class FiberTest {
         assertFalse(fiber.isSuspending());
     }
 
+    @Test
+    public void companionFailureReachesResumingCaller() throws Throwable {
+        var failure = new IllegalArgumentException("companion failed");
+        try {
+            Fiber.suspend(callback -> {
+                throw failure;
+            });
+        } catch (Throwable e) {
+            throw new AssertionError("A companion failure must reach the resumed caller", e);
+        }
+        assertTrue(fiber.isSuspending());
+        state.setInt(fiber, Fiber.STATE_RESUMING);
+        assertSame(failure, assertThrows(IllegalArgumentException.class, () -> Fiber.suspend(callback -> { })));
+        assertFalse(fiber.isSuspending());
+    }
 }

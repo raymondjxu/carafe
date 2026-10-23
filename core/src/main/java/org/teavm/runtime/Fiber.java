@@ -288,8 +288,14 @@ public final class Fiber {
         lastPendingCall = pendingCall;
 
         pendingCall.callback = new AsyncCallbackImpl(pendingCall, javaThread, fiber);
-        call.run(pendingCall.callback);
-        fiber.state = STATE_SUSPENDING;
+        try {
+            // A transformed companion must finish arming its callback before suspension starts.
+            call.run(pendingCall.callback);
+            fiber.state = STATE_SUSPENDING;
+        } catch (Throwable e) {
+            fiber.state = STATE_SUSPENDING;
+            pendingCall.callback.error(e);
+        }
         return null;
     }
 
