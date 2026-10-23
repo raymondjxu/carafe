@@ -416,9 +416,13 @@ class TLexer {
                     case 'w':
                     case 's':
                     case 'd':
+                    case 'h':
+                    case 'v':
                     case 'W':
                     case 'S':
-                    case 'D': {
+                    case 'D':
+                    case 'H':
+                    case 'V': {
                         lookAheadST = TCharClass.getPredefinedClass(new String(pattern, prevNW, 1), false);
                         lookAhead = 0;
                         break;
@@ -506,7 +510,6 @@ class TLexer {
                     case 'C':
                     case 'E':
                     case 'F':
-                    case 'H':
                     case 'I':
                     case 'J':
                     case 'K':
@@ -517,11 +520,9 @@ class TLexer {
                     case 'R':
                     case 'T':
                     case 'U':
-                    case 'V':
                     case 'X':
                     case 'Y':
                     case 'g':
-                    case 'h':
                     case 'i':
                     case 'j':
                     case 'k':

@@ -244,6 +244,42 @@ abstract class TAbstractCharClass extends TSpecialToken {
         }
     }
 
+    static class LazyHorizontalWhitespace extends LazyCharClass {
+        @Override
+        protected TAbstractCharClass computeValue() {
+            return new TCharClass().add(0x09).add(0x20).add(0xA0).add(0x1680).add(0x180E)
+                    .add(0x2000, 0x200A).add(0x202F).add(0x205F).add(0x3000);
+        }
+    }
+
+    static class LazyNonHorizontalWhitespace extends LazyHorizontalWhitespace {
+        @Override
+        protected TAbstractCharClass computeValue() {
+            TAbstractCharClass chCl = super.computeValue().setNegative(true);
+
+            chCl.mayContainSupplCodepoints = true;
+            return chCl;
+        }
+    }
+
+    static class LazyVerticalWhitespace extends LazyCharClass {
+        @Override
+        protected TAbstractCharClass computeValue() {
+            /* Java 8 \v: \n, VT, \f, \r, NEL, LS, PS */
+            return new TCharClass().add(0x0A, 0x0D).add(0x85).add(0x2028, 0x2029);
+        }
+    }
+
+    static class LazyNonVerticalWhitespace extends LazyVerticalWhitespace {
+        @Override
+        protected TAbstractCharClass computeValue() {
+            TAbstractCharClass chCl = super.computeValue().setNegative(true);
+
+            chCl.mayContainSupplCodepoints = true;
+            return chCl;
+        }
+    }
+
     static class LazyWord extends LazyCharClass {
         @Override
         protected TAbstractCharClass computeValue() {
@@ -695,6 +731,10 @@ abstract class TAbstractCharClass extends TSpecialToken {
                 { "S", new LazyNonSpace() }, //$NON-NLS-1$
                 { "d", digit }, //$NON-NLS-1$
                 { "D", new LazyNonDigit() }, //$NON-NLS-1$
+                { "h", new LazyHorizontalWhitespace() }, //$NON-NLS-1$
+                { "H", new LazyNonHorizontalWhitespace() }, //$NON-NLS-1$
+                { "v", new LazyVerticalWhitespace() }, //$NON-NLS-1$
+                { "V", new LazyNonVerticalWhitespace() }, //$NON-NLS-1$
                 { "BasicLatin", new LazyRange(0x0000, 0x007F) }, //$NON-NLS-1$
                 { "Latin-1Supplement", new LazyRange(0x0080, 0x00FF) }, //$NON-NLS-1$
                 { "LatinExtended-A", new LazyRange(0x0100, 0x017F) }, //$NON-NLS-1$
