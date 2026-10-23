@@ -755,7 +755,12 @@ class TLexer {
         if (res.length() == 1) {
             return "Is" + res;
         }
-        return (res.length() > 3 && (res.startsWith("Is") || res.startsWith("In"))) ? res.substring(2) : res;
+        if (res.length() > 3 && (res.startsWith("Is") || res.startsWith("In"))) {
+            res = res.substring(2);
+        }
+        return res.indexOf('_') >= 0 || res.indexOf(' ') >= 0
+                ? res.replace("_", "").replace(" ", "")
+                : res;
     }
 
     /**
