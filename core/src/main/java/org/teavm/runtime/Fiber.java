@@ -287,9 +287,9 @@ public final class Fiber {
         }
         lastPendingCall = pendingCall;
 
-        fiber.state = STATE_SUSPENDING;
         pendingCall.callback = new AsyncCallbackImpl(pendingCall, javaThread, fiber);
         call.run(pendingCall.callback);
+        fiber.state = STATE_SUSPENDING;
         return null;
     }
 
