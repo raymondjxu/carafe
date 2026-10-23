@@ -515,8 +515,8 @@ class TByteBufferImpl extends TByteBuffer {
         if (readOnly) {
             throw new TReadOnlyBufferException();
         }
-        if (index < 0 || index + 3 >= limit) {
-            throw new IndexOutOfBoundsException("Index " + index + " is outside of range [0;" + (limit - 3) + ")");
+        if (index < 0 || index + 7 >= limit) {
+            throw new IndexOutOfBoundsException("Index " + index + " is outside of range [0;" + (limit - 7) + ")");
         }
         if (order == TByteOrder.BIG_ENDIAN) {
             array[start + index + 0] = (byte) (value >> 56);

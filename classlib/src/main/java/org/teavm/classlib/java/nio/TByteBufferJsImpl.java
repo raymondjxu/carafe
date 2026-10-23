@@ -391,8 +391,8 @@ class TByteBufferJsImpl extends TByteBuffer implements TArrayBufferViewProvider 
         if (readOnly) {
             throw new TReadOnlyBufferException();
         }
-        if (index + 3 >= limit) {
-            throw new TBufferOverflowException();
+        if (index < 0 || index + 3 >= limit) {
+            throw new IndexOutOfBoundsException();
         }
         getDataView().setFloat32(index, value, order == TByteOrder.LITTLE_ENDIAN);
         return this;
@@ -400,8 +400,8 @@ class TByteBufferJsImpl extends TByteBuffer implements TArrayBufferViewProvider 
 
     @Override
     public float getFloat(int index) {
-        if (index + 3 >= limit) {
-            throw new TBufferUnderflowException();
+        if (index < 0 || index + 3 >= limit) {
+            throw new IndexOutOfBoundsException();
         }
         return getDataView().getFloat32(index, order == TByteOrder.LITTLE_ENDIAN);
     }
@@ -431,8 +431,8 @@ class TByteBufferJsImpl extends TByteBuffer implements TArrayBufferViewProvider 
 
     @Override
     public double getDouble(int index) {
-        if (index + 7 >= limit) {
-            throw new TBufferUnderflowException();
+        if (index < 0 || index + 7 >= limit) {
+            throw new IndexOutOfBoundsException();
         }
         return getDataView().getFloat64(index, order == TByteOrder.LITTLE_ENDIAN);
     }
@@ -442,8 +442,8 @@ class TByteBufferJsImpl extends TByteBuffer implements TArrayBufferViewProvider 
         if (readOnly) {
             throw new TReadOnlyBufferException();
         }
-        if (index + 7 >= limit) {
-            throw new TBufferOverflowException();
+        if (index < 0 || index + 7 >= limit) {
+            throw new IndexOutOfBoundsException();
         }
         getDataView().setFloat64(index, value, order == TByteOrder.LITTLE_ENDIAN);
         return this;
@@ -485,8 +485,8 @@ class TByteBufferJsImpl extends TByteBuffer implements TArrayBufferViewProvider 
         if (readOnly) {
             throw new TReadOnlyBufferException();
         }
-        if (index < 0 || index + 3 >= limit) {
-            throw new IndexOutOfBoundsException("Index " + index + " is outside of range [0;" + (limit - 3) + ")");
+        if (index < 0 || index + 7 >= limit) {
+            throw new IndexOutOfBoundsException("Index " + index + " is outside of range [0;" + (limit - 7) + ")");
         }
         getDataView().setBigInt64(index, value, order == TByteOrder.LITTLE_ENDIAN);
         return this;

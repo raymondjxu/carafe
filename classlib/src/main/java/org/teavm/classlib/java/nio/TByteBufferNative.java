@@ -405,8 +405,8 @@ class TByteBufferNative extends TByteBuffer implements TArrayBufferViewProvider,
         if (readOnly) {
             throw new TReadOnlyBufferException();
         }
-        if (index + 3 >= limit) {
-            throw new TBufferOverflowException();
+        if (index < 0 || index + 3 >= limit) {
+            throw new IndexOutOfBoundsException();
         }
         var address = this.address.add(index);
         if (swap) {
@@ -419,8 +419,8 @@ class TByteBufferNative extends TByteBuffer implements TArrayBufferViewProvider,
 
     @Override
     public float getFloat(int index) {
-        if (index + 3 >= limit) {
-            throw new TBufferUnderflowException();
+        if (index < 0 || index + 3 >= limit) {
+            throw new IndexOutOfBoundsException();
         }
         var address = this.address.add(index);
         return swap
@@ -461,8 +461,8 @@ class TByteBufferNative extends TByteBuffer implements TArrayBufferViewProvider,
 
     @Override
     public double getDouble(int index) {
-        if (index + 7 >= limit) {
-            throw new TBufferUnderflowException();
+        if (index < 0 || index + 7 >= limit) {
+            throw new IndexOutOfBoundsException();
         }
         var address = this.address.add(index);
         return swap
@@ -475,8 +475,8 @@ class TByteBufferNative extends TByteBuffer implements TArrayBufferViewProvider,
         if (readOnly) {
             throw new TReadOnlyBufferException();
         }
-        if (index + 7 >= limit) {
-            throw new TBufferOverflowException();
+        if (index < 0 || index + 7 >= limit) {
+            throw new IndexOutOfBoundsException();
         }
         var address = this.address.add(index);
         if (swap) {
@@ -524,8 +524,8 @@ class TByteBufferNative extends TByteBuffer implements TArrayBufferViewProvider,
         if (readOnly) {
             throw new TReadOnlyBufferException();
         }
-        if (index < 0 || index + 3 >= limit) {
-            throw new IndexOutOfBoundsException("Index " + index + " is outside of range [0;" + (limit - 3) + ")");
+        if (index < 0 || index + 7 >= limit) {
+            throw new IndexOutOfBoundsException("Index " + index + " is outside of range [0;" + (limit - 7) + ")");
         }
         address.add(index).putLong(swap ? Long.reverseBytes(value) : value);
         return this;
