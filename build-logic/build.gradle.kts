@@ -26,6 +26,7 @@ repositories {
 }
 
 dependencies {
+    testImplementation(libs.junit)
     implementation(libs.gson)
     implementation(libs.shadowPlugin)
     implementation(libs.maven.plugin.tools.api)

@@ -25,7 +25,7 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
-rootProject.name = "teavm"
+rootProject.name = "carafe"
 
 include("core")
 include("interop:core")
@@ -120,13 +120,14 @@ fun MavenPom.setupPom(project: Project) {
         }
     }
     scm {
-        url = "https://github.com/konsoletyper/teavm"
-        connection = "scm:git:git@github.com:konsoletyper/teavm.git"
+        url = "https://github.com/raymondjxu/carafe"
+        connection = "scm:git:git@github.com:raymondjxu/carafe.git"
     }
     url = "https://teavm.org"
 }
 
 dependencyRelocation {
+    artifactIdPrefix = "teavm-relocated"
     for (asmLib in listOf("asm", "asm-tree", "asm-analysis", "asm-commons", "asm-util")) {
         library("libs", asmLib) {
             relocate("org.objectweb.asm", "org.teavm.asm")

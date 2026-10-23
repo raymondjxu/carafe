@@ -19,7 +19,7 @@ plugins {
     `teavm-release`
 }
 
-group = "org.teavm"
+group = "net.raymondjxu.carafe"
 
 idea.module.excludeDirs.add(File(rootDir, "build-dir"))
 
@@ -29,4 +29,17 @@ tasks.register("clean") {
     doLast {
         buildDir.get().asFile.deleteRecursively()
     }
+}
+// Publish the compiler/runtime closure consumed by Owlcraft to build/staging-deploy.
+// Keep IDE integrations and remote release tasks out of the local development build.
+tasks.register("publishForOwlcraft") {
+    group = "publishing"
+    description = "Publish Carafe compiler and runtime artifacts for the sibling Owlcraft checkout"
+    val modules = listOf(
+        ":core", ":interop:core", ":extension:apis", ":extension:spi", ":extension:spi-util",
+        ":metaprogramming:api", ":metaprogramming:impl", ":jso:core", ":jso:apis", ":jso:impl",
+        ":platform", ":classlib", ":tools:core", ":tools:c-incremental", ":tools:cli"
+    ) + listOf("asm", "asm-tree", "asm-analysis", "asm-commons", "asm-util", "rhino", "hppc")
+        .map { ":relocated:libs:$it" }
+    dependsOn(modules.map { "$it:publishAllPublicationsToTeavmRepository" })
 }

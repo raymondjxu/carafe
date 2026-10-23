@@ -32,7 +32,7 @@ dependencies {
 
 gradlePlugin {
     website = "https://teavm.org"
-    vcsUrl = "https://github.com/konsoletyper/teavm"
+    vcsUrl = "https://github.com/raymondjxu/carafe"
     plugins {
         create("TeaVMPlugin") {
             id = "org.teavm"
@@ -126,7 +126,7 @@ tasks.withType<Checkstyle> {
 publishing {
     publications {
         create<MavenPublication>("pluginMaven") {
-            groupId = "org.teavm"
+            groupId = "net.raymondjxu.carafe"
             artifactId = "teavm-gradle-plugin"
         }
     }

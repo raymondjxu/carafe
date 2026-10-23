@@ -50,7 +50,7 @@ val generateDependenciesList by tasks.registering {
         }
     }
     doLast {
-        val fullList = deps.get() + "org.teavm:teavm-devserver-runner:$version"
+        val fullList = deps.get() + "net.raymondjxu.carafe:teavm-devserver-runner:$version"
         depsFile.get().asFile.writeText(fullList.joinToString("\n"))
     }
 }
@@ -68,7 +68,7 @@ fun findArtifactCoordinates(path: String): String? {
 publishing.publications {
     create<MavenPublication>("depsList") {
         artifact(generateDependenciesList) {
-            group = "org.teavm"
+            groupId = "net.raymondjxu.carafe"
             artifactId = "teavm-devserver-runner"
             classifier = "dependencies"
             extension = "txt"
