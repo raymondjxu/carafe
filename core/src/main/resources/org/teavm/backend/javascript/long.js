@@ -17,11 +17,28 @@
 
 let Long_MAX_NORMAL = 1 << 18;
 let Long_ZERO = teavm_globals.BigInt(0);
+let Long_MAX_VALUE = teavm_globals.BigInt("9223372036854775807");
+let Long_MIN_VALUE = teavm_globals.BigInt("-9223372036854775808");
 let Long_create = (lo, hi) => teavm_globals.BigInt.asIntN(64, teavm_globals.BigInt.asUintN(64, teavm_globals.BigInt(lo))
     | teavm_globals.BigInt.asUintN(64, (teavm_globals.BigInt(hi) << teavm_globals.BigInt(32))));
 let Long_fromInt = val => teavm_globals.BigInt.asIntN(64, teavm_globals.BigInt(val | 0));
-let Long_fromNumber = val =>  teavm_globals.BigInt.asIntN(64, teavm_globals.BigInt(
-    val >= 0 ? teavm_globals.Math.floor(val) : teavm_globals.Math.ceil(val)));
+let Long_fromNumber = val => {
+    // JLS 5.1.3: NaN -> 0; round toward zero; clamp out-of-range (incl. infinities) to MIN/MAX.
+    if (teavm_globals.isNaN(val)) {
+        return Long_ZERO;
+    }
+    // 9223372036854775807 is not a double; the literal below is 2^63 exactly, and any double
+    // >= 2^63 is out of long range -> MAX. Symmetrically, -2^63 is exactly representable and is
+    // Long.MIN_VALUE itself, so <= -2^63 -> MIN is exact.
+    if (val >= 9223372036854775808.0) {
+        return Long_MAX_VALUE;
+    }
+    if (val <= -9223372036854775808.0) {
+        return Long_MIN_VALUE;
+    }
+    return teavm_globals.BigInt.asIntN(64, teavm_globals.BigInt(
+        val >= 0 ? teavm_globals.Math.floor(val) : teavm_globals.Math.ceil(val)));
+};
 let Long_toNumber = val => teavm_globals.Number(val);
 let Long_hi = val => teavm_globals.Number(teavm_globals.BigInt.asIntN(64, val >> teavm_globals.BigInt(32))) | 0;
 let Long_lo = val => teavm_globals.Number(teavm_globals.BigInt.asIntN(32, val)) | 0;

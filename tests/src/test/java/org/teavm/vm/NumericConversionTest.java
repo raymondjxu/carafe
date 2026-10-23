@@ -56,6 +56,22 @@ public class NumericConversionTest {
         assertEquals(0, (long) (doubleOne() * Double.NaN));
     }
 
+    // Issue: on the JS backend, (long) of NaN or +/-Infinity crashes instead of following JLS 5.1.3.
+    // long.js Long_fromNumber passes the double straight into BigInt(), which throws
+    // "RangeError: The number NaN cannot be converted to a BigInt" for NaN and infinities.
+    // Java defines (long) NaN == 0 and clamps out-of-range values (including infinities) to
+    // Long.MIN_VALUE / Long.MAX_VALUE. doubleOverflow() above covers this but skips JavaScript, which
+    // hides the crash. Found in Owlcraft (Minecraft client): a NaN produced during a render frame
+    // crashed the client where the JVM would have yielded 0.
+    @Test
+    public void doubleToLongSpecialValues() {
+        assertEquals(0L, (long) (doubleOne() * Double.NaN));
+        assertEquals(Long.MAX_VALUE, (long) (doubleOne() * Double.POSITIVE_INFINITY));
+        assertEquals(Long.MIN_VALUE, (long) (doubleOne() * Double.NEGATIVE_INFINITY));
+        assertEquals(Long.MAX_VALUE, (long) (doubleOne() * 1e30));
+        assertEquals(Long.MIN_VALUE, (long) (doubleOne() * -1e30));
+    }
+
     private float floatOne() {
         return 1;
     }
