@@ -1771,9 +1771,7 @@ public class WasmGCInstructionGenerationVisitor implements StatementVisitor, Exp
                         : i == 0 ? ValueType.object(reference.getClassName()) : reference.parameterType(i - 1);
                 var wasmType = context.typeMapper().mapType(type);
                 accept(argument, builder, wasmType);
-                if (expr.getType() == InvocationType.SPECIAL && i == 0) {
-                    forceType(wasmType);
-                }
+                forceType(wasmType);
             }
 
             builder.call(function, isAsyncSplit(expr.getMethod()));
@@ -1855,6 +1853,7 @@ public class WasmGCInstructionGenerationVisitor implements StatementVisitor, Exp
                 for (int i = 1; i < expr.getArguments().size(); ++i) {
                     var paramType = context.typeMapper().mapType(expr.getMethod().parameterType(i - 1));
                     accept(expr.getArguments().get(i), builder, paramType);
+                    forceType(paramType);
                 }
         });
     }
