@@ -44,6 +44,9 @@ class TByteBufferNative extends TByteBuffer implements TArrayBufferViewProvider,
         this.capacity = capacity;
         this.readOnly = readOnly;
         updateSwap();
+        if (PlatformDetector.isWebAssemblyGC() && gcRef == null && array == null && capacity > 0) {
+            Address.fillZero(address, capacity);
+        }
     }
 
     @Override
