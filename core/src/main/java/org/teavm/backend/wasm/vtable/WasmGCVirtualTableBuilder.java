@@ -51,7 +51,7 @@ class WasmGCVirtualTableBuilder {
         buildLCA();
         initInterfaceTables();
         fillInterfaceImplementors();
-        mergeTrivialInterfaces();
+        // Keep method-less interfaces separate: folding them can merge a concrete class into an interface.
         liftInterfaces();
         buildInterfacesHierarchy();
         groupMethodsFromCallSites();
@@ -142,18 +142,6 @@ class WasmGCVirtualTableBuilder {
         if (cls != null) {
             for (var superInterface : cls.getInterfaces()) {
                 addImplementorToInterface(superInterface, newImplementor, visited);
-            }
-        }
-    }
-
-    private void mergeTrivialInterfaces() {
-        for (var table : tables) {
-            if (table.cls.hasModifier(ElementModifier.INTERFACE)) {
-                if (table.cls.getInterfaces().isEmpty() && table.cls.getMethods().isEmpty()
-                        && table.commonImplementor != null) {
-                    table.interfaceMergedIntoClass = true;
-                    table.commonImplementor.merge(table);
-                }
             }
         }
     }
