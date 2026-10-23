@@ -336,7 +336,7 @@ abstract class TAbstractCharClass extends TSpecialToken {
         @Override
         protected TAbstractCharClass computeValue() {
             /* Punctuation !"#$%&'()*+,-./:;<=>?@ [\]^_` {|}~ */
-            return new TCharClass().add(0x21, 0x40).add(0x5B, 0x60).add(0x7B, 0x7E);
+            return new TCharClass().add(0x21, 0x2F).add(0x3A, 0x40).add(0x5B, 0x60).add(0x7B, 0x7E);
         }
     }
 
