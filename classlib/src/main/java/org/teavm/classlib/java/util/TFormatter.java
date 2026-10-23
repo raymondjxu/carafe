@@ -188,7 +188,9 @@ public final class TFormatter implements Closeable, Flushable {
 
                 formatSpecifierStart = index;
                 char specifier = parseFormatSpecifier();
-                configureFormat();
+                if (specifier != '%' && specifier != 'n') {
+                    configureFormat();
+                }
                 formatValue(specifier);
             }
         }
@@ -248,6 +250,9 @@ public final class TFormatter implements Closeable, Flushable {
 
                 case '%':
                     out.append("%");
+                    break;
+                case 'n':
+                    out.append(System.lineSeparator());
                     break;
                 default:
                     throw new UnknownFormatConversionException(String.valueOf(specifier));
