@@ -51,7 +51,11 @@ public class WasmGCVirtualCallGenerator {
             return;
         }
 
-        var instance = valueCache.create(instanceType, builder);
+        // Cache using the operand type, including receivers produced by local.tee.
+        var stack = builder.typeInference.typeStack;
+        var actualType = (WasmType.CompositeReference) stack.get(stack.size() - 1);
+        // Coroutine frames save every temporary, even before its first assignment.
+        var instance = valueCache.create(actualType.asNullable(), builder);
 
         var objectClass = classInfoProvider.getClassInfo("java.lang.Object");
 
@@ -60,7 +64,7 @@ public class WasmGCVirtualCallGenerator {
         var expectedInstanceClassStruct = classInfoProvider.getClassInfo(
                 nonInterfaceAncestor.getClassName()).getStructure();
         var vtableStruct = expectedInstanceClassInfo.getVirtualTableStructure();
-        var instanceStruct = (WasmStructure) instanceType.composite;
+        var instanceStruct = (WasmStructure) actualType.composite;
 
         if (!expectedInstanceClassStruct.isSupertypeOf(instanceStruct)) {
             builder.cast(expectedInstanceClassStruct.getNonNullReference());
