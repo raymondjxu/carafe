@@ -516,7 +516,6 @@ class TByteBufferNative extends TByteBuffer implements TArrayBufferViewProvider,
             throw new IndexOutOfBoundsException("Index " + index + " is outside of range [0;" + (limit - 7) + ")");
         }
         var result = address.add(index).getLong();
-        position += 8;
         return swap ? Long.reverseBytes(result) : result;
     }
 

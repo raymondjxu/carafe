@@ -503,7 +503,6 @@ class TByteBufferImpl extends TByteBuffer {
         long f = array[start + index + 5] & 0xFF;
         long g = array[start + index + 6] & 0xFF;
         long h = array[start + index + 7] & 0xFF;
-        position += 8;
         if (order == TByteOrder.BIG_ENDIAN) {
             return (a << 56) | (b << 48) | (c << 40) | (d << 32) | (e << 24) | (f << 16) | (g << 8) | h;
         } else {
