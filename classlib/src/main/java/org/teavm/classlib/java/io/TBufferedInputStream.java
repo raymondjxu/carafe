@@ -67,12 +67,9 @@ public class TBufferedInputStream extends TFilterInputStream {
             }
             return result;
         }
-        if (markpos == 0 && marklimit > localBuf.length) {
+        if (markpos == 0 && marklimit > localBuf.length && pos >= localBuf.length) {
             /* Increase buffer size to accommodate the readlimit */
-            int newLength = localBuf.length * 2;
-            if (newLength > marklimit) {
-                newLength = marklimit;
-            }
+            int newLength = localBuf.length > marklimit / 2 ? marklimit : localBuf.length * 2;
             byte[] newbuf = new byte[newLength];
             System.arraycopy(localBuf, 0, newbuf, 0, localBuf.length);
             // Reassign buf, which will invalidate any local references
